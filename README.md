@@ -8,6 +8,8 @@
 - add the ability for a logged in user to set a value for their favorite_number
 - add a property of is_admin for users which will determine if a logged in user is an administrator
 - an administrator should see a link which will enable them to see all the users in the system
+- an administrator can set other users as administrators
+- an administrator can not unset themselves as an administrator
 
 # Setup
 
