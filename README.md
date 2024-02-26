@@ -2,6 +2,13 @@
 
 - this is a working application which allows an existing user to log into and out of the application
 
+# Features to Add
+
+- enable registration for new users
+- add the ability for a logged in user to set a value for their favorite_number
+- add a property of is_admin for users which will determine if a logged in user is an administrator
+- an administrator should have link which will enable them to see all the users in the system
+
 # Setup
 
 - create database
@@ -56,3 +63,4 @@ node server/index.js
 JWT for jwt secret
 DATABASE_URL for postgres database
 ```
+
