@@ -4,6 +4,8 @@
 
 # Features to Add
 
+## Tier One
+
 - add error handling for login errors
   - the state for the errors should be in the login form
   - find where the error occurs
@@ -23,10 +25,23 @@
   - once it can be displayed, how can it be changed?
   - a select object can both display the value and call a method which updates it
   - once you can get an updated value for a logged in user can you add a an express route which updates that value and returns the updated auth object?
+  - can you secure that route?
+
+## Tier Two
 - add a property of is_admin for users which will determine if a logged in user is an administrator
+  - a simple approach might be to have a setAdministrator function in your data layer
+  - you call it during init for one of the seeded users 
 - an administrator should see a link which will enable them to see all the users in the system
+  - start by showing the link only if a user is an administrator
 - an administrator can set other users as administrators
+  - add state to your application for users
+  - if a user is an administrator, call the /api/users route
+  - can you use useEffect with auth in the dependency array?
+  - create a route and a component which shows the users
 - an administrator can not unset themselves as an administrator
+  - you can leverage the route for setting favorite_number and call the appropriate data layer method based on the whether favorite_number or is_admin is passed
+  - can you secure this route?
+  - can you prevent an administrator from unsetting themselves as administrator
 
 # Setup
 
