@@ -4,6 +4,8 @@
 
 # Features to Add
 
+<a href='https://github.com/FullstackAcademy/fs_vite_express_template/blob/main/wireframe.png'>Wireframe</a>
+
 ## Tier One
 
 - add error handling for login errors
