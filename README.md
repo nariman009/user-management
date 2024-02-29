@@ -24,7 +24,7 @@
   - can this property be displayed on the home component?
   - once it can be displayed, how can it be changed?
   - a select object can both display the value and call a method which updates it
-  - once you can get an updated value for a logged in user can you add a an express route which updates that value and returns the updated auth object?
+  - once you can get an updated value for a logged in user can you add a an express route which updates that value and returns the updated values for that user?
   - can you secure that route?
 
 ## Tier Two
