@@ -95,7 +95,7 @@ function App() {
       const userData = await response.json();
       setAuth(userData);
       // Assuming the response includes a token, you might want to store it in localStorage
-      // window.localStorage.setItem('token', userData.token);
+      window.localStorage.setItem('token', userData.token);
     } catch (error) {
       throw error;
     }

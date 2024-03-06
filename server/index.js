@@ -27,12 +27,20 @@ const isLoggedIn = async(req, res, next)=> {
 
 app.post('/api/auth/register', async (req, res, next) => {
   try {
-    const user = await createUser(req.body); // Create the user
-    // Optionally, authenticate the user immediately after registration
-    // const token = window.localStorage.getItem('token'); // Implement this function based on your auth strategy
-    // res.status(201).send({ user}); // Send back the new user and token
+    // Create the user in the database
+    const { username, password } = req.body;
+    const user = await createUser({ username, password });
+    if (user) {
+      // If user creation was successful, send a success response
+      res.status(201).json({ message: "User successfully registered", user: { username: user.username, id: user.id } });
+    } else {
+      // If the user was not created for some reason, send an appropriate message
+      res.status(400).json({ message: "Unable to register user" });
+    }
   } catch (ex) {
-    next(ex);
+    console.error(ex);
+    // Catch any errors that occur during the process and send an error response
+    res.status(500).json({ error: "An error occurred during registration" });
   }
 });
 
