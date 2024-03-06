@@ -52,10 +52,75 @@ const Login = ({ login })=> {
   );
 }
 
+const FavoriteNumber = ({ userId, token }) => {
+  const [favoriteNumber, setFavoriteNumber] = useState(null);
+
+  useEffect(() => {
+    const token = window.localStorage.getItem('token');
+    async function fetchFavoriteNumber() {
+      if (!userId || !token) {
+        console.log("User ID or token is missing.");
+        return; // Exit if no userId or token
+      }
+      
+      try {
+        // Fetch the favorite number on component mount
+        const response = await fetch(`/api/users/${userId}/favorite_number`, {
+          headers: {
+            authorization: token
+          }
+        });
+      
+        console.log("response: ", response)
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        console.log("first: ", data.favoriteNumber)
+        setFavoriteNumber(data.favoriteNumber);
+      } catch (error) {
+      console.error("Failed to fetch favorite number:", error);
+      // Handle error (e.g., by setting an error state, logging, etc.)
+      }
+      
+    }
+
+    fetchFavoriteNumber();
+  }, [userId, token]);
+
+  const handleUpdateFavoriteNumber = async (e) => {
+    // Update the favorite number
+    const newNumber = e.target.value;
+    const response = await fetch(`/api/users/${userId}/favorite_number`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: token
+      },
+      body: JSON.stringify({ favoriteNumber: newNumber }),
+    });
+    console.log("up: ", newNumber)
+    if (response.ok) {
+      setFavoriteNumber(newNumber);
+    }
+  };
+
+  return (
+    <div>
+      <h3>Your favorite number is: {favoriteNumber}</h3>
+      <input
+        type="number"
+        value={favoriteNumber}
+        onChange={handleUpdateFavoriteNumber}
+      />
+    </div>
+  );
+}
 function App() {
   const [auth, setAuth] = useState({});
   const [showRegister, setShowRegister] = useState({});
-
 
   useEffect(()=> {
     attemptLoginWithToken();
@@ -109,7 +174,7 @@ function App() {
         'Content-Type': 'application/json'
       }
     });
-
+    
     const json = await response.json();
     if(response.ok){
       window.localStorage.setItem('token', json.token);
@@ -119,12 +184,12 @@ function App() {
       throw new Error(json.message || 'Login failed');;
     }
   };
-
+  
   const logout = ()=> {
     window.localStorage.removeItem('token');
     setAuth({});
   };
-
+  
   return (
     <>
       {!auth.id ? (
@@ -140,8 +205,8 @@ function App() {
         </>
       ) : (
         <>
-          <div>Welcome, {auth.username}!</div> {/* Adjust according to your auth object structure */}
-          <button onClick={logout}>Logout</button>
+          <div>Welcome, {auth.username}! Click to <button onClick={logout}>Logout</button></div>
+        <FavoriteNumber userId={auth.id} token={auth.token} />
           <nav>
             <Link to='/'>Home</Link>
             <Link to='/faq'>FAQ</Link>

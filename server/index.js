@@ -5,6 +5,8 @@ const {
   fetchUsers,
   authenticate,
   findUserWithToken,
+  getFavoriteNumber,
+  setFavoriteNumber
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -76,6 +78,29 @@ app.use((err, req, res, next)=> {
   res.status(err.status || 500).send({ error: err.message ? err.message : err });
 });
 
+// Endpoint to get favorite number
+app.get('/api/users/:userId/favorite_number', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const favoriteNumber = await getFavoriteNumber(userId);
+    res.json({ favoriteNumber });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint to set favorite number
+app.post('/api/users/:userId/favorite_number', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { favoriteNumber } = req.body;
+    const updatedFavoriteNumber = await setFavoriteNumber(userId, favoriteNumber);
+    res.json({ favoriteNumber: updatedFavoriteNumber });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const init = async()=> {
   const port = process.env.PORT || 3000;
   await client.connect();
@@ -97,4 +122,3 @@ const init = async()=> {
 };
 
 init();
-

@@ -14,7 +14,8 @@ const createTables = async()=> {
     CREATE TABLE users(
       id UUID PRIMARY KEY,
       username VARCHAR(20) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL
+      password VARCHAR(255) NOT NULL,
+      favorite_number INTEGER DEFAULT 0
     );
   `;
   await client.query(SQL);
@@ -73,11 +74,26 @@ const fetchUsers = async()=> {
   return response.rows;
 };
 
+// Get the user's favorite number
+const getFavoriteNumber = async (userId) => {
+  const { rows } = await client.query('SELECT favorite_number FROM users WHERE id = $1', [userId]);
+  return rows[0].favorite_number; // Return the favorite number or default to 0
+};
+
+// Update the user's favorite number
+const setFavoriteNumber = async (userId, newFavoriteNumber) => {
+  const { rows } = await client.query('UPDATE users SET favorite_number = $1 WHERE id = $2 RETURNING favorite_number', [newFavoriteNumber, userId]);
+  return rows[0].favorite_number;
+};
+
+
 module.exports = {
   client,
   createTables,
   createUser,
   fetchUsers,
   authenticate,
-  findUserWithToken
+  findUserWithToken,
+  getFavoriteNumber,
+  setFavoriteNumber
 };
