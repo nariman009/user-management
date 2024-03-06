@@ -25,6 +25,16 @@ const isLoggedIn = async(req, res, next)=> {
   }
 };
 
+app.post('/api/auth/register', async (req, res, next) => {
+  try {
+    const user = await createUser(req.body); // Create the user
+    // Optionally, authenticate the user immediately after registration
+    // const token = window.localStorage.getItem('token'); // Implement this function based on your auth strategy
+    // res.status(201).send({ user}); // Send back the new user and token
+  } catch (ex) {
+    next(ex);
+  }
+});
 
 app.post('/api/auth/login', async(req, res, next)=> {
   try {
