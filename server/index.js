@@ -7,7 +7,8 @@ const {
   findUserWithToken,
   getFavoriteNumber,
   setFavoriteNumber,
-  setAdministrator
+  setAdministrator,
+  unsetAdministrator
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -105,10 +106,27 @@ app.post('/api/users/:userId/favorite_number', async (req, res) => {
 app.post('/api/users/:userId/make_admin', async (req, res) => {
   try {
     const { userId } = req.params;
-    if (!req.user.is_admin) {
-      return res.status(403).send({ error: "Not authorized" });
+    // if (!req.user.is_admin) {
+    //   return res.status(403).send({ error: "Not authorized" });
+    // }
+    const updatedUser = await setAdministrator(userId);
+    if (updatedUser) {
+      res.status(200).send({ message: "User role updated to admin" });
+    } else {
+      res.status(404).send({ error: "User not found" });
     }
-    const updatedUser = await setAdministrator(userId); s
+  } catch (err) {
+    res.status(500).send({ error: "Server error" });
+  }
+});
+
+app.post('/api/users/:userId/unset_admin', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // if (!req.user.is_admin) {
+    //   return res.status(403).send({ error: "Not authorized" });
+    // }
+    const updatedUser = await unsetAdministrator(userId);
     if (updatedUser) {
       res.status(200).send({ message: "User role updated to admin" });
     } else {

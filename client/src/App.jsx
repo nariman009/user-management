@@ -1,3 +1,4 @@
+import './index.css';
 import { useState, useEffect } from 'react'
 import { Link, Route, Routes } from 'react-router-dom';
 
@@ -106,7 +107,7 @@ const FavoriteNumber = ({ userId, token }) => {
   };
 
   return (
-    <div>
+    <div className="admin-panel">
       <h3>Your favorite number is: {favoriteNumber}</h3>
       <input
         type="number"
@@ -120,28 +121,31 @@ const FavoriteNumber = ({ userId, token }) => {
 const AdminPanel = ({ auth }) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
+  const [admins, setAdmins] = useState(null);
 
+  console.log("auth: ", {auth})
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/users', {
+        headers: {
+          // Ensure the token is used correctly in the request
+          'Authorization': `Bearer ${auth.token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        throw new Error('Failed to fetch users');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = window.localStorage.getItem('token');
-        const response = await fetch('/api/users', {
-          headers: {
-            authorization: token
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUsers(data);
-        }
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-
     fetchUsers();
-  }, []); // Empty dependency array means this runs once on component mount
+  }, [auth.token]);
 
   const handleMakeAdmin = async (userId) => {
     try {
@@ -151,18 +155,41 @@ const AdminPanel = ({ auth }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token
+          Authorization: auth.token
         },
+        body: JSON.stringify({ is_admin: true }),
+
       });
       if (!response.ok) {
         throw new Error('Failed to update user role');
       }
-      fetchUsers();
+      await fetchUsers();
     } catch (err) {
       setError(err.message);
     }
   };
   
+  const handleUnsetAdmin = async (userId) => {
+    try {
+      console.log("userId", userId)
+      // const token = window.localStorage.getItem('token');
+      const response = await fetch(`/api/users/${userId}/unset_admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: auth.token
+        },
+        body: JSON.stringify({ is_admin: false }),
+
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update user role');
+      }
+      await fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
   return (
     <div>
       <h1>Admin Panel</h1>
@@ -171,6 +198,7 @@ const AdminPanel = ({ auth }) => {
           <li key={user.id}>
             {user.username} - Admin: {user.is_admin ? 'Yes' : 'No'}
             {!user.is_admin && <button onClick={() => handleMakeAdmin(user.id)}>Make Admin</button>}
+            {user.is_admin && user.id != auth.id && <button onClick={() => handleUnsetAdmin(user.id)}>Unset Admin</button>}
 
           </li>
         ))}

@@ -97,6 +97,14 @@ const setAdministrator = async(userId) => {
   return response.rows[0];
 };
 
+const unsetAdministrator = async(userId) => {
+  const SQL = `
+    UPDATE users SET is_admin = FALSE WHERE id = $1 RETURNING *
+  `;
+  const response = await client.query(SQL, [userId]);
+  return response.rows[0];
+};
+
 module.exports = {
   client,
   createTables,
@@ -106,5 +114,6 @@ module.exports = {
   findUserWithToken,
   getFavoriteNumber,
   setFavoriteNumber,
-  setAdministrator
+  setAdministrator,
+  unsetAdministrator
 };
