@@ -6,7 +6,8 @@ const {
   authenticate,
   findUserWithToken,
   getFavoriteNumber,
-  setFavoriteNumber
+  setFavoriteNumber,
+  setAdministrator
 } = require('./db');
 const express = require('express');
 const app = express();
@@ -101,6 +102,23 @@ app.post('/api/users/:userId/favorite_number', async (req, res) => {
   }
 });
 
+app.post('/api/users/:userId/make_admin', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!req.user.is_admin) {
+      return res.status(403).send({ error: "Not authorized" });
+    }
+    const updatedUser = await setAdministrator(userId); s
+    if (updatedUser) {
+      res.status(200).send({ message: "User role updated to admin" });
+    } else {
+      res.status(404).send({ error: "User not found" });
+    }
+  } catch (err) {
+    res.status(500).send({ error: "Server error" });
+  }
+});
+
 const init = async()=> {
   const port = process.env.PORT || 3000;
   await client.connect();
@@ -115,8 +133,12 @@ const init = async()=> {
     createUser({ username: 'ethyl', password: 'e_pw'}),
     createUser({ username: 'curly', password: 'c_pw'})
   ]);
-
+  
   console.log(await fetchUsers());
+
+  await setAdministrator(moe.id);
+  console.log('Administrator set.');
+  
 
   app.listen(port, ()=> console.log(`listening on port ${port}`));
 };

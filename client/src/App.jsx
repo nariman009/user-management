@@ -78,7 +78,6 @@ const FavoriteNumber = ({ userId, token }) => {
         }
         
         const data = await response.json();
-        console.log("first: ", data.favoriteNumber)
         setFavoriteNumber(data.favoriteNumber);
       } catch (error) {
       console.error("Failed to fetch favorite number:", error);
@@ -101,7 +100,6 @@ const FavoriteNumber = ({ userId, token }) => {
       },
       body: JSON.stringify({ favoriteNumber: newNumber }),
     });
-    console.log("up: ", newNumber)
     if (response.ok) {
       setFavoriteNumber(newNumber);
     }
@@ -118,6 +116,69 @@ const FavoriteNumber = ({ userId, token }) => {
     </div>
   );
 }
+
+const AdminPanel = ({ auth }) => {
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState('');
+
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = window.localStorage.getItem('token');
+        const response = await fetch('/api/users', {
+          headers: {
+            authorization: token
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+
+    fetchUsers();
+  }, []); // Empty dependency array means this runs once on component mount
+
+  const handleMakeAdmin = async (userId) => {
+    try {
+      console.log(userId)
+      // const token = window.localStorage.getItem('token');
+      const response = await fetch(`/api/users/${userId}/make_admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update user role');
+      }
+      fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+  return (
+    <div>
+      <h1>Admin Panel</h1>
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>
+            {user.username} - Admin: {user.is_admin ? 'Yes' : 'No'}
+            {!user.is_admin && <button onClick={() => handleMakeAdmin(user.id)}>Make Admin</button>}
+
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function App() {
   const [auth, setAuth] = useState({});
   const [showRegister, setShowRegister] = useState({});
@@ -136,7 +197,7 @@ function App() {
       });
       const json = await response.json();
       if(response.ok){
-        setAuth(json);
+        setAuth({ id: json.id, username: json.username, is_admin: json.is_admin });
       }
       else {
         window.localStorage.removeItem('token');
@@ -206,14 +267,16 @@ function App() {
       ) : (
         <>
           <div>Welcome, {auth.username}! Click to <button onClick={logout}>Logout</button></div>
-        <FavoriteNumber userId={auth.id} token={auth.token} />
+          <FavoriteNumber userId={auth.id} token={auth.token} />
           <nav>
             <Link to='/'>Home</Link>
             <Link to='/faq'>FAQ</Link>
+            {auth.is_admin && <Link to="/admin">Admin Panel</Link>}
           </nav>
           <Routes>
             <Route path='/' element={<h1>Home</h1>} />
             <Route path='/faq' element={<h1>FAQ</h1>} />
+            {auth.is_admin && <Route path="/admin" element={<AdminPanel auth={auth}/>} />} {/* New Route for Admin Panel */}
           </Routes>
         </>
       )}
