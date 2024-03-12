@@ -35,8 +35,13 @@ app.post('/api/auth/register', async (req, res, next) => {
     const { username, password } = req.body;
     const user = await createUser({ username, password });
     if (user) {
-      // If user creation was successful, send a success response
-      res.status(201).json({ message: "User successfully registered", user: { username: user.username, id: user.id } });
+      const loginResponse = await authenticate({ username, password });
+
+      res.status(201).json({ 
+        message: "User successfully registered", 
+        user: { username: user.username, id: user.id },
+        token: loginResponse.token
+      });
     } else {
       // If the user was not created for some reason, send an appropriate message
       res.status(400).json({ message: "Unable to register user" });
