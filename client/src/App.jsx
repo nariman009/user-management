@@ -250,6 +250,7 @@ function App() {
       setAuth(userData);
       // Assuming the response includes a token, you might want to store it in localStorage
       window.localStorage.setItem('token', userData.token);
+      attemptLoginWithToken();
     } catch (error) {
       throw error;
     }
